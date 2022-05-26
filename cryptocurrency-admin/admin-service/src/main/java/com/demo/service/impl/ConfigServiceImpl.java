@@ -20,4 +20,9 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
                 .like(!StringUtils.isEmpty(code),Config::getCode,code)
         );
     }
+
+    @Override
+    public Config getConfigByCode(String code) {
+        return getOne(new LambdaQueryWrapper<Config>().eq(Config::getCode, code));
+    }
 }
