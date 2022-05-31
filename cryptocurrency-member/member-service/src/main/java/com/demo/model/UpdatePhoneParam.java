@@ -10,25 +10,22 @@ import javax.validation.constraints.NotBlank;
  * {"countryCode":"+86","newMobilePhone":"15827293118","validateCode":"111111","oldValidateCode":"111111"}
  */
 @Data
-@ApiModel(value = "修改手机号")
+@ApiModel(value = "Update phone number")
 public class UpdatePhoneParam {
 
-
-
-    @ApiModelProperty(value = "国家的Code")
+    @ApiModelProperty(value = "Country code")
     @NotBlank
-    private String countryCode ;
+    private String countryCode;
 
-    @ApiModelProperty(value = "新的手机号")
+    @ApiModelProperty(value = "New phone number")
     @NotBlank
-    private String newMobilePhone ;
+    private String newMobilePhone;
 
-    @ApiModelProperty(value = "新手机号的验证码")
+    @ApiModelProperty(value = "New phone validate code")
     @NotBlank
-    private String validateCode ;
+    private String validateCode;
 
-
-    @ApiModelProperty(value = "旧手机号的验证码")
+    @ApiModelProperty(value = "Old phone validate code")
     @NotBlank
-    private String oldValidateCode ;
+    private String oldValidateCode;
 }

@@ -7,24 +7,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 public class IdProperties {
 
-    /**
-     * 身份认证的URL地址  // https://idcert.market.alicloudapi.com/idcard?idCard=%s&name=%s
-     */
-    private String url ;
+    private String url;
 
+    private String appKey;
 
-    /***
-     * 你购买的appKey
-     */
-    private String appKey ;
+    private String appSecret;
 
-    /***
-     * 你购买的appSecret
-     */
-    private String appSecret ;
-
-    /***
-     * 你购买的appCode
-     */
-    private String appCode ;
+    private String appCode;
 }

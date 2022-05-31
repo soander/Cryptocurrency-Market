@@ -11,51 +11,30 @@ import org.springframework.web.client.RestTemplate;
 @EnableConfigurationProperties(IdProperties.class)
 public class IdAutoConfiguration {
 
-    private static IdProperties  idProperties;
+    private static IdProperties idProperties;
 
-    /**
-     * 发请求的工具
-     */
-    private static RestTemplate restTemplate = new RestTemplate() ;
+    private static RestTemplate restTemplate = new RestTemplate();
 
-    public IdAutoConfiguration(IdProperties idProperties){
-        IdAutoConfiguration.idProperties = idProperties ;
+    public IdAutoConfiguration(IdProperties idProperties) {
+        IdAutoConfiguration.idProperties = idProperties;
     }
 
-    /**
-     * 用户信息的实名认证
-     * @param realName
-     * 用户的真实信息
-     * @param cardNum
-     * 用户的身份证号
-     * @return
-     * 验证的结果
-     */
-    public static boolean check(String realName ,String cardNum){
+    public static boolean check(String realName, String cardNum) {
 
-        /**
-         * 本次请求我们是AppCode的形式验证: Authorization:APPCODE 你自己的AppCode
-         *  -H Authorization:APPCODE 你自己的AppCode
-         */
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization","APPCODE "+idProperties.getAppCode());
-
+        httpHeaders.add("Authorization","APPCODE " + idProperties.getAppCode());
         ResponseEntity<String> responseEntity = restTemplate.exchange(
-                //%s 是变量,
-                String.format(idProperties.getUrl(), cardNum, realName),
-                HttpMethod.GET,
-                new HttpEntity<>(null, httpHeaders),
-                String.class
-        );
-// https://market.aliyun.com/products/57000002/cmapi022049.html?spm=5176.2020520132.101.2.2fe57218VVSjB0#sku=yuncode1604900000
-        if(responseEntity.getStatusCode()== HttpStatus.OK){
+                String.format(idProperties.getUrl(), cardNum, realName), HttpMethod.GET,
+                new HttpEntity<>(null, httpHeaders), String.class);
+
+        if(responseEntity.getStatusCode() == HttpStatus.OK) {
             String body = responseEntity.getBody();
             JSONObject jsonObject = JSON.parseObject(body);
             String status = jsonObject.getString("status");
-            if("01".equals(status)){ // 验证成功
-                return true ;
+            if("01".equals(status)) {
+                return true;
             }
         }
-        return  false ;
+        return  false;
     }
 }

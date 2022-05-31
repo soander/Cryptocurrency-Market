@@ -2,48 +2,30 @@ package com.demo.mappers;
 
 import com.demo.domain.User;
 //import com.demo.dto.UserDto;
+import com.demo.dto.UserDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 /**
- * 用来做对象的映射转化
- * entity2Dto
- * Dto2Entity
+ * entity2Dto -> Dto2Entity
  */
 @Mapper(componentModel = "spring")
 public interface UserDtoMapper {
 
-     // 获取该对象的实例
-    UserDtoMapper INSTANCE =  Mappers.getMapper(UserDtoMapper.class) ;
+     // Get instance
+    UserDtoMapper INSTANCE =  Mappers.getMapper(UserDtoMapper.class);
 
-    /**
-     * 将entity转化为dto
-     * @param source
-     * @return
-     */
-//    UserDto convert2Dto(User source) ;
+    // Entity -> Dto
+    UserDto convert2Dto(User source) ;
 
-    /**
-     * 将dto对象转化为entity对象
-     * @param source
-     * @return
-     */
-//    User convert2Entity(UserDto source) ;
+    // Dto -> Entity
+    User convert2Entity(UserDto source) ;
 
+    // Entity list -> Dto list
+    List<UserDto> convert2Dto(List<User> source) ;
 
-    /**
-     * 将entity转化为dto
-     * @param source
-     * @return
-     */
-//    List<UserDto> convert2Dto(List<User> source) ;
-
-    /**
-     * 将dto对象转化为entity对象
-     * @param source
-     * @return
-     */
-//    List<User> convert2Entity(List<UserDto> source) ;
+    // Dto list -> Entity list
+    List<User> convert2Entity(List<UserDto> source) ;
 }

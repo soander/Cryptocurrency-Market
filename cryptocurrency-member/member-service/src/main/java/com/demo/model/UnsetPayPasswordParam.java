@@ -7,14 +7,14 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ApiModel(value = "重置交易密码")
+@ApiModel(value = "Set Pay Password Param")
 public class UnsetPayPasswordParam {
 
-    @ApiModelProperty(value = "新的交易密码")
+    @ApiModelProperty(value = "New Pay Password")
     @NotBlank
-    private String payPassword ;
+    private String payPassword;
 
-    @ApiModelProperty(value = "手机的验证码")
+    @ApiModelProperty(value = "Sms Code")
     @NotBlank
-    private String validateCode ;
+    private String validateCode;
 }

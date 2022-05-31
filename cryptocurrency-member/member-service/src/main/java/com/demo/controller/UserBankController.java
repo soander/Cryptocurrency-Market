@@ -27,6 +27,7 @@ public class UserBankController {
     @Autowired
     private UserBankService userBankService;
 
+    // Query users' bank
     @GetMapping
     @ApiOperation(value = "Query members' bank by page")
     @ApiImplicitParams({
@@ -41,6 +42,7 @@ public class UserBankController {
         return R.ok(userBankPage);
     }
 
+    // Update user's bank status
     @PostMapping("/status")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id" ,value = "Bank id"),
@@ -58,6 +60,7 @@ public class UserBankController {
         return R.fail("Update fail");
     }
 
+    // Update user bank
     @PatchMapping
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userBank", value = "Bank's json"),
@@ -71,6 +74,7 @@ public class UserBankController {
         return R.fail("Update fail") ;
     }
 
+    // Query current user's bank
     @GetMapping("/current")
     @ApiOperation(value = "Query current user's bank")
     public R<UserBank> getCurrentUserBank() {
@@ -79,6 +83,7 @@ public class UserBankController {
         return R.ok(userBank);
     }
 
+    // Bind bank
     @PostMapping("/bind")
     @ApiOperation(value = "Bind a bank")
     public R bindBank(@RequestBody @Validated UserBank userBank) {

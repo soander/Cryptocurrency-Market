@@ -17,17 +17,16 @@ public class SmsController {
     @Autowired
     private SmsService smsService ;
 
-
     @PostMapping("/sendTo")
-    @ApiOperation(value = "发送短信")
+    @ApiOperation(value = "Send sms")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="sms",value = "smsjson数据")
+            @ApiImplicitParam(name="sms",value = "sms json")
     })
-    public R sendSms(@RequestBody @Validated Sms sms){
-        boolean isOk = smsService.sendSms(sms) ;
+    public R sendSms(@RequestBody @Validated Sms sms) {
+        boolean isOk = smsService.sendSms(sms);
         if(isOk){
-            return R.ok() ;
+            return R.ok();
         }
-        return R.fail("发送失败") ;
+        return R.fail("Send fail.");
     }
 }

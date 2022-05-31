@@ -7,21 +7,18 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ApiModel(value = "修改用户登录密码的参数")
+@ApiModel(value = "Update user password")
 public class UpdateLoginParam {
 
-
-    @ApiModelProperty(value = "原始密码")
+    @ApiModelProperty(value = "Old password")
     @NotBlank
-    private String oldpassword ;
+    private String oldpassword;
 
-
-    @ApiModelProperty(value = "新的密码")
+    @ApiModelProperty(value = "New password")
     @NotBlank
-    private String newpassword ;
+    private String newpassword;
 
-
-    @ApiModelProperty(value = "手机验证码")
+    @ApiModelProperty(value = "Sms validate code")
     @NotBlank
-    private String validateCode ;
+    private String validateCode;
 }

@@ -15,19 +15,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Api(tags = "登录的控制器")
+@Api(tags = "Login controller")
 public class LoginController {
 
     @Autowired
-    private LoginService loginService ;
+    private LoginService loginService;
 
     @PostMapping("/login")
-    @ApiOperation(value = "会员的登录")
+    @ApiOperation(value = "Member login")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "loginForm",value = "登录的表单参数")
+            @ApiImplicitParam(name = "loginForm",value = "Login form")
     })
-    public R<LoginUser> login(@RequestBody @Validated  LoginForm loginForm){
-       LoginUser loginUser =  loginService.login(loginForm) ;
-       return R.ok(loginUser) ;
+    public R<LoginUser> login(@RequestBody @Validated  LoginForm loginForm) {
+       LoginUser loginUser = loginService.login(loginForm);
+       return R.ok(loginUser);
     }
 }

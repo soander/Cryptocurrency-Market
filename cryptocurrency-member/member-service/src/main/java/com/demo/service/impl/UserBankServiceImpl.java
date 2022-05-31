@@ -16,20 +16,16 @@ import org.springframework.stereotype.Service;
 public class UserBankServiceImpl extends ServiceImpl<UserBankMapper, UserBank> implements UserBankService{
 
     @Autowired
-    private UserService userService ;
+    private UserService userService;
 
+    // Query users' bank
     @Override
     public Page<UserBank> findByPage(Page<UserBank> page, Long usrId) {
         return page(page, new LambdaQueryWrapper<UserBank>()
                 .eq(usrId != null ,UserBank::getUserId ,usrId));
     }
 
-    /**
-     * 通过用户的ID 查询用户的银行卡
-     *
-     * @param userId
-     * @return
-     */
+    // Query current user's bank
     @Override
     public UserBank getCurrentUserBank(Long userId) {
         UserBank userBank = getOne(
@@ -39,31 +35,25 @@ public class UserBankServiceImpl extends ServiceImpl<UserBankMapper, UserBank> i
         return userBank;
     }
 
-    /**
-     * 给用户绑定银行卡
-     *
-     * @param userId   用户的ID
-     * @param userBank 用户的银行卡
-     * @return
-     */
+    // Bind bank
     @Override
     public boolean bindBank(Long userId, UserBank userBank) {
-        // 支付密码的判断
+
        String payPassword = userBank.getPayPassword();
        User user = userService.getById(userId);
        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-       if(!bCryptPasswordEncoder.matches(payPassword,user.getPaypassword())){
-           throw new IllegalArgumentException("用户的支付密码错误") ;
+       if(!bCryptPasswordEncoder.matches(payPassword, user.getPaypassword())){
+           throw new IllegalArgumentException("User pay password is not correct");
        }
-        Long id = userBank.getId(); // 有Id 代表是修改操作
-        if(id!=null){
+        Long id = userBank.getId();
+        if(id != null) {
             UserBank userBankDb = getById(id);
-            if (userBankDb==null){
-                throw new IllegalArgumentException("用户的银行卡的ID输入错误") ;
+            if (userBankDb == null) {
+                throw new IllegalArgumentException("User bank id is not correct");
             }
-           return updateById(userBank) ;// 修改值
+           return updateById(userBank); // Update value
         }
-        // 若银行卡的id为null ,则需要新建一个
+
         userBank.setUserId(userId);
         return save(userBank);
     }

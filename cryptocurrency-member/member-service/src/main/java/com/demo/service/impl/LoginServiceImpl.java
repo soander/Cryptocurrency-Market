@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.demo.feign.JwtToken;
 import com.demo.feign.OAuth2FeignClient;
 import com.demo.geetest.GeetestLib;
+import com.demo.geetest.GeetestLibResult;
 import com.demo.model.LoginForm;
 import com.demo.model.LoginUser;
 import com.demo.service.LoginService;
+import com.demo.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,13 +17,16 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {
-
 
     @Autowired
     private OAuth2FeignClient oAuth2FeignClient;
@@ -38,38 +43,48 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private GeetestLib geetestLib;
 
-    /**
-     * 会员的登录
-     *
-     * @param loginForm 登录的表单参数
-     * @return 登录的结果
-     */
+    // Member user login
     @Override
     public LoginUser login(LoginForm loginForm) {
-        log.info("用户{}开始登录", loginForm.getUsername());
+        log.info("User{}begin login", loginForm.getUsername());
         checkFormData(loginForm);
         LoginUser loginUser = null;
-        // 登录就是使用用户名和密码换一个token 而已--->远程调用->authorization-server
+
         ResponseEntity<JwtToken> tokenResponseEntity = oAuth2FeignClient.getToken("password", loginForm.getUsername(), loginForm.getPassword(), "member_type", basicToken);
         if (tokenResponseEntity.getStatusCode() == HttpStatus.OK) {
             JwtToken jwtToken = tokenResponseEntity.getBody();
-            log.info("远程调用成功,结果为", JSON.toJSONString(jwtToken, true));
-            // token 必须包含bearer
+            log.info("Feign success, result is ", JSON.toJSONString(jwtToken, true));
             loginUser = new LoginUser(loginForm.getUsername(), jwtToken.getExpiresIn(), jwtToken.getTokenType() + " " + jwtToken.getAccessToken(), jwtToken.getRefreshToken());
-            // 使用网关解决登出的问题:
-            // token 是直接存储的
             strRedisTemplate.opsForValue().set(jwtToken.getAccessToken(), "", jwtToken.getExpiresIn(), TimeUnit.SECONDS);
         }
         return loginUser;
     }
 
-    /**
-     * 校验数据
-     * 极验证的数据校验
-     *
-     * @param loginForm
-     */
     private void checkFormData(LoginForm loginForm) {
-        loginForm.check(geetestLib,redisTemplate);
+        String challenge = loginForm.getGeetest_challenge();
+        String validate = loginForm.getGeetest_validate();
+        String seccode = loginForm.getGeetest_seccode();
+        int status;
+        String userId;
+
+        String statusStr = redisTemplate.opsForValue().get(GeetestLib.GEETEST_SERVER_STATUS_SESSION_KEY).toString();
+        status = Integer.valueOf(statusStr).intValue();
+        userId = redisTemplate.opsForValue().get(GeetestLib.GEETEST_SERVER_USER_KEY + ":" + loginForm.getUuid()).toString();
+        GeetestLibResult result;
+        if (status == 1) {
+            Map<String, String> paramMap = new HashMap<>();
+            paramMap.put("user_id", userId);
+            paramMap.put("client_type", "web");
+            ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            paramMap.put("ip_address", IpUtil.getIpAddr(servletRequestAttributes.getRequest()));
+            result = geetestLib.successValidate(challenge, validate, seccode, paramMap);
+            log.info("Check result is {}", JSON.toJSONString(result));
+        } else {
+            result = geetestLib.failValidate(challenge, validate, seccode);
+        }
+        if(result.getStatus() != 1) {
+            log.error("Validation exception",JSON.toJSONString(result,true));
+            throw new IllegalArgumentException("Validation exception");
+        }
     }
 }

@@ -7,26 +7,26 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ApiModel(value = "注册的表单数据")
+@ApiModel(value = "Register form data")
 public class RegisterParam extends GeetestForm {
 
-    @ApiModelProperty(value = "国家的代号")
+    @ApiModelProperty(value = "Country code")
     @NotBlank
     private String countryCode;
 
-    @ApiModelProperty(value = "邮箱地址")
+    @ApiModelProperty(value = "Email")
     private String email;
 
-    @ApiModelProperty(value = "手机号码")
+    @ApiModelProperty(value = "Phone number")
     private String mobile;
 
-    @ApiModelProperty(value = "邀请码")
+    @ApiModelProperty(value = "Invitation code")
     private String invitionCode;
 
-    @ApiModelProperty(value = "密码")
+    @ApiModelProperty(value = "Password")
     @NotBlank
     private String password;
 
-    @ApiModelProperty(value = "手机的验证码---现在被弃用了")
+    @ApiModelProperty(value = "Verification code")
     private String validateCode;
 }

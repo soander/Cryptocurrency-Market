@@ -7,23 +7,22 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 @Data
-@ApiModel(value = "重置密码的表单")
+@ApiModel(value = "SetPasswordParam")
 public class UnSetPasswordParam extends GeetestForm {
 
-
-    @ApiModelProperty(value = "国家的代号")
+    @ApiModelProperty(value = "Country code")
     @NotBlank
-    private  String countryCode ;
+    private  String countryCode;
 
-    @ApiModelProperty(value = "手机号")
+    @ApiModelProperty(value = "phone number")
     @NotBlank
-    private String mobile ;
+    private String mobile;
 
-    @ApiModelProperty(value = "新的密码")
+    @ApiModelProperty(value = "New password")
     @NotBlank
-    private String password ;
+    private String password;
 
-    @ApiModelProperty(value = "手机的验证码")
+    @ApiModelProperty(value = "validate code")
     @NotBlank
-    private String validateCode ;
+    private String validateCode;
 }
