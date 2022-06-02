@@ -38,48 +38,26 @@ import java.util.stream.Collectors;
 @Service
 public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMapper, CashWithdrawals> implements CashWithdrawalsService {
 
-
     @Autowired
     private UserServiceFeign userServiceFeign;
-
     @Autowired
     private ConfigService configService;
-
-
     @Autowired
     private StringRedisTemplate redisTemplate;
-
-
     @Autowired
     private UserBankServiceFeign userBankServiceFeign;
-
-
     @Autowired
     private AccountService accountService;
-
-
     @Autowired
     private CashWithdrawAuditRecordMapper cashWithdrawAuditRecordMapper;
-
-
     @CreateCache(name = "CASH_WITHDRAWALS_LOCK:", expire = 100, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.BOTH)
     private Cache<String, String> lock;
 
-
     /**
-     * 提现记录的查询
-     *
-     * @param page      分页数据
-     * @param userId    用户的id
-     * @param userName  用户的名称
-     * @param mobile    用户的手机号
-     * @param status    提现的状态
-     * @param numMin    提现的最小金额
-     * @param numMax    提现的最大金额
-     * @param startTime 提现的开始时间
-     * @param endTime   提现的截至时间
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Query cash withdrawals records by page
+    * @Date 2022/6/2 10:36
+    **/
     @Override
     public Page<CashWithdrawals> findByPage(Page<CashWithdrawals> page, Long userId, String userName, String mobile, Byte status, String numMin, String numMax, String startTime, String endTime) {
         // 有用户的信息时
@@ -126,13 +104,10 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
     }
 
     /**
-     * 查询用户的提现记录
-     *
-     * @param page
-     * @param userId
-     * @param status
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Query user's cash withdrawals records by page
+    * @Date 2022/6/2 11:13
+    **/
     @Override
     public Page<CashWithdrawals> findCashWithdrawals(Page<CashWithdrawals> page, Long userId, Byte status) {
         return page(page, new LambdaQueryWrapper<CashWithdrawals>()
@@ -294,24 +269,23 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
         }
     }
 
-
     /**
-     * 审核提现记录
-     *
-     * @param userId
-     * @param cashWithdrawAuditRecord
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Cash withdrawals status audit
+    * @Date 2022/6/2 10:37
+    * @Param
+    * @Return * @return null
+    **/
     @Override
     public boolean updateWithdrawalsStatus(Long userId, CashWithdrawAuditRecord cashWithdrawAuditRecord) {
-        // 1 使用锁锁住
+
         boolean isOk = lock.tryLockAndRun(cashWithdrawAuditRecord.getId() + "", 300, TimeUnit.SECONDS, () -> {
             CashWithdrawals cashWithdrawals = getById(cashWithdrawAuditRecord.getId());
             if (cashWithdrawals == null) {
-                throw new IllegalArgumentException("现金的审核记录不存在");
+                throw new IllegalArgumentException("Cash withdrawals does not exist");
             }
 
-            // 2 添加一个审核的记录
+            // Create a new cash withdrawal audit record
             CashWithdrawAuditRecord cashWithdrawAuditRecordNew = new CashWithdrawAuditRecord();
             cashWithdrawAuditRecordNew.setAuditUserId(userId);
             cashWithdrawAuditRecordNew.setRemark(cashWithdrawAuditRecord.getRemark());
@@ -321,26 +295,24 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
             cashWithdrawAuditRecordNew.setStep(step.byteValue());
             cashWithdrawAuditRecordNew.setOrderId(cashWithdrawals.getId());
 
-            // 记录保存成功
+            // Save cash withdrawal audit record
             int count = cashWithdrawAuditRecordMapper.insert(cashWithdrawAuditRecordNew);
             if (count > 0) {
                 cashWithdrawals.setStatus(cashWithdrawAuditRecord.getStatus());
                 cashWithdrawals.setRemark(cashWithdrawAuditRecord.getRemark());
                 cashWithdrawals.setLastTime(new Date());
-                cashWithdrawals.setAccountId(userId); //
+                cashWithdrawals.setAccountId(userId);
                 cashWithdrawals.setStep(step.byteValue());
-                boolean updateById = updateById(cashWithdrawals);   // 审核拒绝
+                boolean updateById = updateById(cashWithdrawals);
                 if (updateById) {
-                    // 审核通过 withdrawals_out
-                    Boolean isPass = accountService.decreaseAccountAmount(
-                            userId, cashWithdrawals.getUserId(), cashWithdrawals.getCoinId(),
-                            cashWithdrawals.getId(), cashWithdrawals.getNum(), cashWithdrawals.getFee(),
+                    accountService.decreaseAccountAmount(userId, cashWithdrawals.getUserId(),
+                            cashWithdrawals.getCoinId(), cashWithdrawals.getId(),
+                            cashWithdrawals.getNum(), cashWithdrawals.getFee(),
                             cashWithdrawals.getRemark(), "withdrawals_out", (byte) 2
                     );
                 }
             }
         });
-
         return isOk;
     }
 }

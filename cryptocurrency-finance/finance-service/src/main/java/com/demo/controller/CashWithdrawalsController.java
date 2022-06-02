@@ -193,7 +193,7 @@ public class CashWithdrawalsController {
     @PostMapping("/updateWithdrawalsStatus")
     public R updateWithdrawalsStatus(@RequestBody CashWithdrawAuditRecord cashWithdrawAuditRecord) {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        boolean isOk =  cashWithdrawalsService.updateWithdrawalsStatus(userId ,cashWithdrawAuditRecord);
+        boolean isOk =  cashWithdrawalsService.updateWithdrawalsStatus(userId, cashWithdrawAuditRecord);
         return isOk ? R.ok() : R.fail("Review failed");
     }
 }

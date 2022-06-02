@@ -15,8 +15,10 @@ public interface CashRechargeService extends IService<CashRecharge> {
     // Query user cash recharge records by page
     Page<CashRecharge> findUserCashRecharge(Page<CashRecharge> page, Long userId, Byte status);
 
+    // Buy GCN
     CashTradeVo buy(Long userId, CashParam cashParam);
 
+    // Audit cash recharge
     boolean cashRechargeAudit(Long userId, CashRechargeAuditRecord cashRechargeAuditRecord);
 }
 
