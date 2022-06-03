@@ -48,15 +48,14 @@ public class CoinRechargeController {
 
     @GetMapping("/user/record")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "current" ,value = "Current page"),
-            @ApiImplicitParam(name = "size" ,value = "Page size"),
-            @ApiImplicitParam(name = "coinId" ,value = "Coin id"),
-
+            @ApiImplicitParam(name = "current", value = "Current page"),
+            @ApiImplicitParam(name = "size", value = "Page size"),
+            @ApiImplicitParam(name = "coinId", value = "Coin id"),
     })
     @ApiOperation(value = "Query user recharge records")
-    public R<Page<CoinRecharge>> findUserCoinRecharge(@ApiIgnore Page<CoinRecharge> page ,Long coinId){
-        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
-        Page<CoinRecharge> pageData = coinRechargeService.findUserCoinRecharge(page ,coinId, userId) ;
-        return R.ok(pageData) ;
+    public R<Page<CoinRecharge>> findUserCoinRecharge(@ApiIgnore Page<CoinRecharge> page ,Long coinId) {
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        Page<CoinRecharge> pageData = coinRechargeService.findUserCoinRecharge(page, coinId, userId);
+        return R.ok(pageData);
     }
 }

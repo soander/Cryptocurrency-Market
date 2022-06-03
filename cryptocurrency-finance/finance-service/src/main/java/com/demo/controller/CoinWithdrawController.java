@@ -46,7 +46,6 @@ public class CoinWithdrawController {
         return R.ok(pageData);
     }
 
-
     @GetMapping("/user/record")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "current" ,value = "Current page"),
@@ -54,9 +53,9 @@ public class CoinWithdrawController {
             @ApiImplicitParam(name = "coinId" ,value = "Coin id"),
     })
     @ApiOperation(value = "Query user coin withdraw records")
-    public R<Page<CoinWithdraw>> findUserCoinWithdraw(@ApiIgnore Page<CoinWithdraw> page ,Long coinId) {
+    public R<Page<CoinWithdraw>> findUserCoinWithdraw(@ApiIgnore Page<CoinWithdraw> page, Long coinId) {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        Page<CoinWithdraw> coinWithdrawPage = coinWithdrawService.findUserCoinWithdraw(userId,coinId,page);
+        Page<CoinWithdraw> coinWithdrawPage = coinWithdrawService.findUserCoinWithdraw(userId, coinId, page);
         return R.ok(coinWithdrawPage);
     }
 }

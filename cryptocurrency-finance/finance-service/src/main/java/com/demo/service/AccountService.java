@@ -12,28 +12,10 @@ public interface AccountService extends IService<Account> {
     // Query user coin balance by userId and coinName
     Account findByUserAndCoin(Long userId, String coinName);
 
-    /**
-     * 暂时锁定用户的资产
-     * @param userId
-     *  用户的id
-     * @param coinId
-     * 币种的id
-     * @param mum
-     * 锁定的金额
-     * @param type
-     *      资金流水的类型
-     * @param orderId
-     *      订单的Id
-     * @param fee
-     *  本次操作的手续费
-     */
+    // Lock user's coin balance
     void lockUserAmount(Long userId, Long coinId, BigDecimal mum, String type, Long orderId, BigDecimal fee);
 
-    /**
-     * 计算用户的总的资产
-     * @param userId
-     * @return
-     */
+    // Get user total account balance
     UserTotalAccountVo getUserTotalAccount(Long userId);
 
     /**
@@ -44,6 +26,7 @@ public interface AccountService extends IService<Account> {
      *      用户的Id
      * @return
      */
+    // Get
     SymbolAssetVo getSymbolAssert(String symbol, Long userId);
 
     // Transfer account amount
@@ -52,26 +35,10 @@ public interface AccountService extends IService<Account> {
     // Decrease account amount
     Boolean decreaseAccountAmount(Long adminId, Long userId, Long coinId, Long orderNum ,BigDecimal num, BigDecimal fee,String remark, String businessType, byte direction);
 
-    /**
-     *
-     * @param fromUserId
-     * @param toUserId
-     * @param coinId
-     * @param amount
-     * @param businessType
-     * @param orderId
-     */
+    // Buy amount
     void transferBuyAmount(Long fromUserId, Long toUserId, Long coinId, BigDecimal amount, String businessType, Long orderId);
 
-    /**
-     *
-     * @param fromUserId
-     * @param toUserId
-     * @param coinId
-     * @param amount
-     * @param businessType
-     * @param orderId
-     */
+    // Sell amount
     void transferSellAmount(Long fromUserId, Long toUserId, Long coinId, BigDecimal amount, String businessType, Long orderId);
 }
 

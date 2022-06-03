@@ -50,6 +50,7 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
     private AccountService accountService;
     @Autowired
     private CashWithdrawAuditRecordMapper cashWithdrawAuditRecordMapper;
+
     @CreateCache(name = "CASH_WITHDRAWALS_LOCK:", expire = 100, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.BOTH)
     private Cache<String, String> lock;
 
@@ -60,7 +61,7 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
     **/
     @Override
     public Page<CashWithdrawals> findByPage(Page<CashWithdrawals> page, Long userId, String userName, String mobile, Byte status, String numMin, String numMax, String startTime, String endTime) {
-        // 有用户的信息时
+
         Map<Long, UserDto> basicUsers = null;
         LambdaQueryWrapper<CashWithdrawals> cashWithdrawalsLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (userId != null || !StringUtils.isEmpty(userName) || !StringUtils.isEmpty(mobile)) {
@@ -71,7 +72,7 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
             Set<Long> userIds = basicUsers.keySet();
             cashWithdrawalsLambdaQueryWrapper.in(CashWithdrawals::getUserId, userIds);
         }
-        // 其他的查询信息
+
         cashWithdrawalsLambdaQueryWrapper.eq(status != null, CashWithdrawals::getStatus, status)
                 .between(
                         !(StringUtils.isEmpty(numMin) || StringUtils.isEmpty(numMax)),
@@ -115,40 +116,36 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
                 .eq(status != null, CashWithdrawals::getStatus, status));
     }
 
-
     /**
-     * GCN的卖出操作
-     *
-     * @param userId
-     * @param cashSellParam
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Sell GCN
+    * @Date 2022/6/3 11:01
+    **/
     @Override
     public boolean sell(Long userId, CashSellParam cashSellParam) {
-        //1 参数校验
+        //1 Check cash sell params
         checkCashSellParam(cashSellParam);
         Map<Long, UserDto> basicUsers = userServiceFeign.getBasicUsers(Arrays.asList(userId), null, null);
         if (CollectionUtils.isEmpty(basicUsers)) {
-            throw new IllegalArgumentException("用户的id错误");
+            throw new IllegalArgumentException("User id is not exist");
         }
         UserDto userDto = basicUsers.get(userId);
-        // 2 手机验证码
-        validatePhoneCode(userDto.getMobile(),cashSellParam.getValidateCode()) ;
-        // 3 支付密码
+        // 2 Check validate code
+        validatePhoneCode(userDto.getMobile(), cashSellParam.getValidateCode());
+        // 3 Check user pay password
         checkUserPayPassword(userDto.getPaypassword(), cashSellParam.getPayPassword());
-        // 4 远程调用查询用户的银行卡
+        // 4 Check user's bank card
         UserBankDto userBankInfo = userBankServiceFeign.getUserBankInfo(userId);
         if (userBankInfo == null) {
-            throw new IllegalArgumentException("该用户暂未绑定银行卡信息");
+            throw new IllegalArgumentException("User bank info is not exist");
         }
         String remark = RandomUtil.randomNumbers(6);
-        // 5 通过数量得到本次交易的金额
+        // 5 Get the cash sell amount
         BigDecimal amount = getCashWithdrawalsAmount(cashSellParam.getNum());
-        // 6 计算本次的手续费
+        // 6 Calculate the fee
         BigDecimal fee = getCashWithdrawalsFee(amount);
-        // 7 查询用户的账号ID
         Account account = accountService.findByUserAndCoin(userId, "GCN");
-        // 7 订单的创建
+        // 7 Create cash withdrawals record
         CashWithdrawals cashWithdrawals = new CashWithdrawals();
         cashWithdrawals.setUserId(userId);
         cashWithdrawals.setAccountId(account.getId());
@@ -156,7 +153,7 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
         cashWithdrawals.setStatus((byte) 0);
         cashWithdrawals.setStep((byte) 1);
         cashWithdrawals.setNum(cashSellParam.getNum());
-        cashWithdrawals.setMum(amount.subtract(fee)); // 实际金额 = amount-fee
+        cashWithdrawals.setMum(amount.subtract(fee));
         cashWithdrawals.setFee(fee);
         cashWithdrawals.setBank(userBankInfo.getBank());
         cashWithdrawals.setBankCard(userBankInfo.getBankCard());
@@ -166,107 +163,93 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
         cashWithdrawals.setTruename(userBankInfo.getRealName());
         cashWithdrawals.setRemark(remark);
         boolean save = save(cashWithdrawals);
-        if (save) { //
-            // 扣减总资产--account-->accountDetail
+        if (save) {
             accountService.lockUserAmount(userId, cashWithdrawals.getCoinId(), cashWithdrawals.getMum(), "withdrawals_out", cashWithdrawals.getId(), cashWithdrawals.getFee());
         }
         return save;
     }
 
     /**
-     * 计算本次的手续费
-     *
-     * @param amount
-     * @return
-     */
-    private BigDecimal getCashWithdrawalsFee(BigDecimal amount) {
-        // 1 通过总金额* 费率 = 手续费
-        // 2 若金额较小---->最小的提现的手续费
+    * @Author Yaozheng Wang
+    * @Description Check cash sell param
+    * @Date 2022/6/3 11:03
+    **/
+    private void checkCashSellParam(CashSellParam cashSellParam) {
 
-        // 最小的提现费用
-        Config withdrawMinPoundage = configService.getConfigByCode("WITHDRAW_MIN_POUNDAGE");
-        BigDecimal withdrawMinPoundageFee = new BigDecimal(withdrawMinPoundage.getValue());
+        Config cashWithdrawalsStatus = configService.getConfigByCode("WITHDRAW_STATUS");
+        if (Integer.valueOf(cashWithdrawalsStatus.getValue()) != 1) {
+            throw new IllegalArgumentException("Cash withdrawals is not open");
+        }
+        @NotNull BigDecimal cashSellParamNum = cashSellParam.getNum();
+        // Minimum withdrawal amount
+        Config cashWithdrawalsConfigMin = configService.getConfigByCode("WITHDRAW_MIN_AMOUNT");
+        if (cashSellParamNum.compareTo(new BigDecimal(cashWithdrawalsConfigMin.getValue())) < 0) {
+            throw new IllegalArgumentException("Please enter the minimum withdrawal amount");
+        }
 
-        // 提现的费率
-        Config withdrawPoundageRate = configService.getConfigByCode("WITHDRAW_POUNDAGE_RATE");
-
-
-        // 通过费率计算的手续费
-        BigDecimal poundageFee = amount.multiply(new BigDecimal(withdrawPoundageRate.getValue())).setScale(2, RoundingMode.HALF_UP);
-
-        //min 取2 个的最小值
-        return poundageFee.min(withdrawMinPoundageFee).equals(poundageFee) ? withdrawMinPoundageFee : poundageFee;
+        // Maximum withdrawal amount
+        Config cashWithdrawalsConfigMax = configService.getConfigByCode("WITHDRAW_MAX_AMOUNT");
+        if (cashSellParamNum.compareTo(new BigDecimal(cashWithdrawalsConfigMax.getValue())) >= 0) {
+            throw new IllegalArgumentException("Please enter the maximum withdrawal amount");
+        }
     }
 
     /**
-     * 通过数量计算金额
-     *
-     * @param num
-     * @return
-     */
+     * @Author Yaozheng Wang
+     * @Description Check user pay password
+     * @Date 2022/6/3 11:10
+     **/
+    private void checkUserPayPassword(String payDBPassword, String payPassword) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        boolean matches = bCryptPasswordEncoder.matches(payPassword, payDBPassword);
+        if (!matches) {
+            throw new IllegalArgumentException("Pay password is not correct");
+        }
+    }
+
+    /**
+     * @Author Yaozheng Wang
+     * @Description Check validate phone code
+     * @Date 2022/6/3 13:06
+     **/
+    private void validatePhoneCode(String mobile, String validateCode) {
+
+        String code = redisTemplate.opsForValue().get("SMS:CASH_WITHDRAWS:" + mobile);
+        if (!validateCode.equals(code)) {
+            throw new IllegalArgumentException("Validate code is not correct");
+        }
+
+    }
+
+    /**
+    * @Author Yaozheng Wang
+    * @Description Get cash withdrawals amount by num
+    * @Date 2022/6/3 13:25
+    **/
     private BigDecimal getCashWithdrawalsAmount(BigDecimal num) {
-        //
         Config rateConfig = configService.getConfigByCode("USDT2CNY");
         return num.multiply(new BigDecimal(rateConfig.getValue())).setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
-     * 支付密码的校验
-     *
-     * @param payDBPassword
-     * @param payPassword
-     */
-    private void checkUserPayPassword(String payDBPassword, String payPassword) {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        boolean matches = bCryptPasswordEncoder.matches(payPassword, payDBPassword);
-        if (!matches) {
-            throw new IllegalArgumentException("支付密码错误");
-        }
-    }
+     * @Author Yaozheng Wang
+     * @Description Calculate the fee
+     * @Date 2022/6/3 13:25
+     **/
+    private BigDecimal getCashWithdrawalsFee(BigDecimal amount) {
 
-    /**
-     * 校验用户的手机验证码
-     *
-     * @param mobile
-     * @param validateCode
-     */
-    private void validatePhoneCode(String mobile, String validateCode) {
+        // The minimum withdrawal amount
+        Config withdrawMinPoundage = configService.getConfigByCode("WITHDRAW_MIN_POUNDAGE");
+        BigDecimal withdrawMinPoundageFee = new BigDecimal(withdrawMinPoundage.getValue());
 
-        // 验证:SMS:CASH_WITHDRAWS:mobile
-        String code = redisTemplate.opsForValue().get("SMS:CASH_WITHDRAWS:" + mobile);
-        if (!validateCode.equals(code)) {
-            throw new IllegalArgumentException("验证码错误");
-        }
+        // The poundage rate
+        Config withdrawPoundageRate = configService.getConfigByCode("WITHDRAW_POUNDAGE_RATE");
 
-    }
+        // Calculate the fee by the poundage rate
+        BigDecimal poundageFee = amount.multiply(new BigDecimal(withdrawPoundageRate.getValue())).setScale(2, RoundingMode.HALF_UP);
 
-    /**
-     * 1 手机验证码
-     * 2 支付密码
-     * 3 提现相关的验证
-     *
-     * @param cashSellParam
-     */
-    private void checkCashSellParam(CashSellParam cashSellParam) {
-        // 1 提现状态
-        Config cashWithdrawalsStatus = configService.getConfigByCode("WITHDRAW_STATUS");
-        if (Integer.valueOf(cashWithdrawalsStatus.getValue()) != 1) {
-            throw new IllegalArgumentException("提现暂未开启");
-        }
-        // 2 提现的金额
-        @NotNull BigDecimal cashSellParamNum = cashSellParam.getNum();
-        // 2.1 最小的提现额度100
-        Config cashWithdrawalsConfigMin = configService.getConfigByCode("WITHDRAW_MIN_AMOUNT");
-        //101
-        if (cashSellParamNum.compareTo(new BigDecimal(cashWithdrawalsConfigMin.getValue())) < 0) {
-            throw new IllegalArgumentException("检查提现的金额");
-        }
-        // 2.1 最小的提现额度200
-        // 201
-        Config cashWithdrawalsConfigMax = configService.getConfigByCode("WITHDRAW_MAX_AMOUNT");
-        if (cashSellParamNum.compareTo(new BigDecimal(cashWithdrawalsConfigMax.getValue())) >= 0) {
-            throw new IllegalArgumentException("检查提现的金额");
-        }
+        // Return the minimum fee
+        return poundageFee.min(withdrawMinPoundageFee).equals(poundageFee) ? withdrawMinPoundageFee : poundageFee;
     }
 
     /**

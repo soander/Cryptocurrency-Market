@@ -27,19 +27,10 @@ public class CoinWithdrawServiceImpl extends ServiceImpl<CoinWithdrawMapper, Coi
     private UserServiceFeign userServiceFeign;
 
     /**
-     * Query coin withdraw records by page
-     *
-     * @param page
-     * @param coinId
-     * @param userId
-     * @param userName
-     * @param mobile
-     * @param status
-     * @param numMin
-     * @param numMax
-     * @param startTime
-     * @param endTime
-     */
+    * @Author Yaozheng Wang
+    * @Description Query coin withdraw records by page
+    * @Date 2022/6/3 14:13
+    **/
     @Override
     public Page<CoinWithdraw> findByPage(Page<CoinWithdraw> page, Long coinId, Long userId, String userName, String mobile, Byte status, String numMin, String numMax, String startTime, String endTime) {
         LambdaQueryWrapper<CoinWithdraw> coinWithdrawLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -87,15 +78,16 @@ public class CoinWithdrawServiceImpl extends ServiceImpl<CoinWithdrawMapper, Coi
     }
 
     /**
-     * Query user coin withdraw records by page
-     * @param userId
-     * @param coinId
-     * @param page
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Query user coin withdraw records by page
+    * @Date 2022/6/3 14:14
+    * @Param
+    * @Return * @return null
+    **/
     @Override
     public Page<CoinWithdraw> findUserCoinWithdraw(Long userId, Long coinId, Page<CoinWithdraw> page) {
-        return page(page,new LambdaQueryWrapper<CoinWithdraw>().eq(CoinWithdraw::getUserId,userId)
+        return page(page,new LambdaQueryWrapper<CoinWithdraw>()
+                .eq(CoinWithdraw::getUserId,userId)
                 .eq(coinId!=null,CoinWithdraw::getCoinId,coinId)
         );
     }

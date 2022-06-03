@@ -85,9 +85,9 @@ public class CoinRechargeServiceImpl extends ServiceImpl<CoinRechargeMapper, Coi
     **/
     @Override
     public Page<CoinRecharge> findUserCoinRecharge(Page<CoinRecharge> page, Long coinId, Long userId) {
-        return page(page,new LambdaQueryWrapper<CoinRecharge>()
-                        .eq(coinId!=null,CoinRecharge::getCoinId,coinId)
-                        .eq(CoinRecharge::getUserId ,userId)
+        return page(page, new LambdaQueryWrapper<CoinRecharge>()
+                .eq(coinId!=null,CoinRecharge::getCoinId,coinId)
+                .eq(CoinRecharge::getUserId ,userId)
         );
     }
 }
