@@ -19,15 +19,14 @@ import java.util.Arrays;
 
 @RestController
 @RequestMapping("/notices")
-@Api(tags = "公告管理")
+@Api(tags = "Notice Controller")
 public class NoticeController {
 
     @Autowired
     private NoticeService noticeService;
 
-    // Query notice by page
     @GetMapping
-    @ApiOperation(value = "分页查询公告")
+    @ApiOperation(value = "Query notice by page")
     @PreAuthorize("hasAuthority('notice_query')")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "current", value = "Current Page"),
@@ -124,9 +123,9 @@ public class NoticeController {
 
     // Simple notice information
     @GetMapping("/simple/{id}")
-    @ApiOperation(value = "查询某条Notice的详情")
+    @ApiOperation(value = "Query notice detail by id")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id",value = "notice的id")
+            @ApiImplicitParam(name = "id",value = "notice's id")
     })
     public R<Notice> noticeSimpleInfo(@PathVariable("id")Long id) {
         Notice notice = noticeService.getById(id);

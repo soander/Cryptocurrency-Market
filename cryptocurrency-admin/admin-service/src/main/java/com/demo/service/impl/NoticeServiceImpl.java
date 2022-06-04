@@ -13,15 +13,10 @@ import org.springframework.util.StringUtils;
 public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> implements NoticeService{
 
     /**
-     * check notice
-     *
-     * @param page
-     * @param title
-     * @param startTime
-     * @param endTime
-     * @param status
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Find notice by page
+    * @Date 2022/6/4 15:39
+    **/
     @Override
     public Page<Notice> findByPage(Page<Notice> page, String title, String startTime, String endTime, Integer status) {
         return page(page, new LambdaQueryWrapper<Notice>()
@@ -32,9 +27,10 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     }
 
     /**
-     * @param page
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Find Notice for simple
+    * @Date 2022/6/4 15:39
+    **/
     @Override
     public Page<Notice> findNoticeForSimple(Page<Notice> page) {
         return page(page,new LambdaQueryWrapper<Notice>()

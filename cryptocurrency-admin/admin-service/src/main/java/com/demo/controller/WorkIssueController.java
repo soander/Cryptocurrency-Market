@@ -60,10 +60,10 @@ public class WorkIssueController {
     }
 
     @GetMapping("/issueList")
-    @ApiOperation(value = "前台查询工单")
+    @ApiOperation(value = "Issue list")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "current" ,value = "当前页"),
-            @ApiImplicitParam(name = "size" ,value = "显示的条数")
+            @ApiImplicitParam(name = "current" ,value = "Current page"),
+            @ApiImplicitParam(name = "size" ,value = "Page size"),
     })
     public R<Page<WorkIssue>> getIssueList(@ApiIgnore Page<WorkIssue> page) {
         String userIdStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
@@ -72,11 +72,11 @@ public class WorkIssueController {
     }
 
     @PostMapping("/addWorkIssue")
-    @ApiOperation(value = "会员添加问题")
+    @ApiOperation(value = "Add work issue")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "workIssue" , value = "workIssue的json,只包含questions")
+            @ApiImplicitParam(name = "workIssue" , value = "work issue's json")
     })
-    public R addWorkIssue(@RequestBody  WorkIssue workIssue) {
+    public R addWorkIssue(@RequestBody WorkIssue workIssue) {
         String userIdStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         workIssue.setUserId(Long.valueOf(userIdStr));
         workIssue.setStatus(1);

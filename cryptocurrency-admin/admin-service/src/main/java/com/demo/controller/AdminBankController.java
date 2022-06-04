@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.demo.domain.AdminBank;
 //import com.demo.dto.AdminBankDto;
 //import com.demo.feign.AdminBankServiceFeign;
+import com.demo.dto.AdminBankDto;
+import com.demo.feign.AdminBankServiceFeign;
 import com.demo.model.R;
 import com.demo.service.AdminBankService;
 import io.swagger.annotations.Api;
@@ -22,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/adminBanks")
 @Api(tags = "Bank config")
-public class AdminBankController {
+public class AdminBankController implements AdminBankServiceFeign {
 
     @Autowired
     private AdminBankService adminBankService;
@@ -89,9 +91,9 @@ public class AdminBankController {
         return R.fail("Update fail");
     }
 
-//    @Override
-//    public List<AdminBankDto> getAllAdminBanks() {
-//        List<AdminBankDto> adminBankDtos = adminBankService.getAllAdminBanks() ;
-//        return adminBankDtos;
-//    }
+    @Override
+    public List<AdminBankDto> getAllAdminBanks() {
+        List<AdminBankDto> adminBankDtos = adminBankService.getAllAdminBanks() ;
+        return adminBankDtos;
+    }
 }

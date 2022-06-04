@@ -15,11 +15,10 @@ import java.util.List;
 public class WebConfigServiceImpl extends ServiceImpl<WebConfigMapper, WebConfig> implements WebConfigService{
 
     /**
-     * @param page
-     * @param name
-     * @param type
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Find web config by page
+    * @Date 2022/6/4 15:36
+    **/
     @Override
     public Page<WebConfig> findByPage(Page<WebConfig> page, String name, String type) {
 
@@ -29,6 +28,11 @@ public class WebConfigServiceImpl extends ServiceImpl<WebConfigMapper, WebConfig
         );
     }
 
+    /**
+    * @Author Yaozheng Wang
+    * @Description Find web banners
+    * @Date 2022/6/4 15:36
+    **/
     @Override
     public List<WebConfig> findWebBanners() {
         return list(new LambdaQueryWrapper<WebConfig>()
@@ -38,6 +42,11 @@ public class WebConfigServiceImpl extends ServiceImpl<WebConfigMapper, WebConfig
         );
     }
 
+    /**
+    * @Author Yaozheng Wang
+    * @Description Get pc banners
+    * @Date 2022/6/4 15:35
+    **/
     @Override
     public List<WebConfig> getPcBanners() {
         return list(new LambdaQueryWrapper<WebConfig>()

@@ -8,16 +8,12 @@ import java.util.List;
 
 public interface WebConfigService extends IService<WebConfig> {
 
-    /**
-     * find By Page
-     * @param page
-     * @param name
-     * @param type
-     * @return
-     */
+    // Find web config by page
     Page<WebConfig> findByPage(Page<WebConfig> page, String name, String type);
 
+    // Find web banners
     List<WebConfig> findWebBanners();
 
+    // Get pc banners
     List<WebConfig> getPcBanners();
 }
