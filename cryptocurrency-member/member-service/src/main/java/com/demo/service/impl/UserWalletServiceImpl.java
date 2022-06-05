@@ -19,7 +19,7 @@ import java.util.List;
 public class UserWalletServiceImpl extends ServiceImpl<UserWalletMapper, UserWallet> implements UserWalletService{
 
     @Autowired
-    private UserService userService ;
+    private UserService userService;
 
     @Override
     public Page<UserWallet> findByPage(Page<UserWallet> page, Long userId) {
@@ -27,56 +27,56 @@ public class UserWalletServiceImpl extends ServiceImpl<UserWalletMapper, UserWal
     }
 
     /**
-     * 查询用户的提币的地址
-     *
-     * @param userId 用户的Id
-     * @param coinId 币种的Id
-     * @return
-     */
+     * @Author Yaozheng Wang
+     * @Description Query user coin address by coinId
+     * @Date 2022/6/3 13:55
+     **/
     @Override
     public List<UserWallet> findUserWallets(Long userId, Long coinId) {
         return list(new LambdaQueryWrapper<UserWallet>()
-                                    .eq(UserWallet::getUserId,userId)
-                                    .eq(UserWallet::getCoinId,coinId)
-        )   ;
+                .eq(UserWallet::getUserId,userId)
+                .eq(UserWallet::getCoinId,coinId)
+        );
     }
 
+    /**
+    * @Author Yaozheng Wang
+    * @Description Add user coin address
+    * @Date 2022/6/3 13:58
+    **/
     @Override
     public boolean save(UserWallet entity) {
         Long userId = entity.getUserId();
         User user = userService.getById(userId);
-        if(user==null){
-            throw new IllegalArgumentException("该用户不存在") ;
+        if(user == null) {
+            throw new IllegalArgumentException("User not found");
         }
-        String paypassword = user.getPaypassword();
-        if(StringUtils.isEmpty(paypassword) ||  !(new BCryptPasswordEncoder().matches(entity.getPayPassword(),paypassword))){
-            throw new IllegalArgumentException("交易密码错误") ;
+        String payPassword = user.getPaypassword();
+        if(StringUtils.isEmpty(payPassword) || !(new BCryptPasswordEncoder().matches(entity.getPayPassword(),payPassword))) {
+            throw new IllegalArgumentException("Pay password is not correct");
         }
         return super.save(entity);
     }
 
-
     /**
-     * 删除用户的提现地址
-     *
-     * @param addressId   提现地址的Id
-     * @param payPassword 交易密码
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Delete user coin address
+    * @Date 2022/6/3 14:03
+    **/
     @Override
     public boolean deleteUserWallet(Long addressId, String payPassword) {
         UserWallet userWallet = getById(addressId);
-        if(userWallet==null){
-            throw new IllegalArgumentException("提现地址错误") ;
+        if(userWallet == null) {
+            throw new IllegalArgumentException("Wallet not found");
         }
         Long userId = userWallet.getUserId();
         User user = userService.getById(userId);
-        if(user==null){
-            throw new IllegalArgumentException("用户不存在") ;
+        if(user == null) {
+            throw new IllegalArgumentException("User not found");
         }
         String paypassword = user.getPaypassword();
         if(StringUtils.isEmpty(paypassword) ||  !(new BCryptPasswordEncoder().matches(payPassword,paypassword))){
-            throw new IllegalArgumentException("交易密码错误") ;
+            throw new IllegalArgumentException("Pay password is not correct");
         }
         return super.removeById(addressId);
     }

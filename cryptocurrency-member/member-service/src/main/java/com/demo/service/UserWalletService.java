@@ -8,25 +8,12 @@ import java.util.List;
 
 public interface UserWalletService extends IService<UserWallet>{
 
+    // Query user wallet by userId
     Page<UserWallet> findByPage(Page<UserWallet> page, Long userId);
 
-    /**
-     * 查询用户的提币的地址
-     * @param userId
-     * 用户的Id
-     * @param coinId
-     * 币种的Id
-     * @return
-     */
+    // Query user coin address by coinId
     List<UserWallet> findUserWallets(Long userId, Long coinId);
 
-    /**
-     * 删除用户的提现地址
-     * @param addressId
-     *   提现地址的Id
-     * @param payPassword
-     * 交易密码
-     * @return
-     */
+    // Delete user coin address
     boolean deleteUserWallet(Long addressId, String payPassword);
 }

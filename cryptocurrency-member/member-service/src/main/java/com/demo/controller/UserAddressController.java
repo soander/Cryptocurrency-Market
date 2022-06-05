@@ -27,7 +27,6 @@ public class UserAddressController {
     @Autowired
     private UserAddressService userAddressService;
 
-
     @GetMapping
     @ApiOperation(value = "Query user's wallet address")
     @ApiImplicitParams({
@@ -49,7 +48,7 @@ public class UserAddressController {
     }
 
     @GetMapping("/getCoinAddress/{coinId}")
-    @ApiOperation(value = "Query user's wallet address by some coin id")
+    @ApiOperation(value = "Query user's some coin wallet address by coin id and user id")
     public R<String> getCoinAddress(@PathVariable("coinId") Long coinId) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         UserAddress userAddress = userAddressService.getUserAddressByUserIdAndCoinId(userId,coinId);

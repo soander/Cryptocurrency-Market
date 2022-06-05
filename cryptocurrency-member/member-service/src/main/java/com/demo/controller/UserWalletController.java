@@ -41,7 +41,7 @@ public class UserWalletController {
     }
 
     @GetMapping("/getCoinAddress/{coinId}")
-    @ApiOperation(value = "查询用户某种币的提现地址")
+    @ApiOperation(value = "Query wallet address by coin id")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "coinId" ,value = "Coin id")
     })
@@ -51,34 +51,32 @@ public class UserWalletController {
         return R.ok(userWallets);
     }
 
-
     @PostMapping
-    @ApiOperation(value = "新增一个提现地址")
+    @ApiOperation(value = "Add a new wallet address")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userWallet" ,value = "userWallet json数据")
+            @ApiImplicitParam(name = "userWallet" ,value = "userWallet's json")
     })
-    public R save(@RequestBody @Validated  UserWallet userWallet){
+    public R save(@RequestBody @Validated UserWallet userWallet) {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         userWallet.setUserId(userId);
-        boolean save = userWalletService.save(userWallet); // 交易密码的交易
-        if (save){
-            return R.ok() ;
+        boolean save = userWalletService.save(userWallet);
+        if (save) {
+            return R.ok();
         }
-        return R.fail("新增提现地址失败") ;
+        return R.fail("Add wallet address failed");
     }
 
-
     @PostMapping("/deleteAddress")
-    @ApiOperation(value = "删除某个用户的提现地址")
+    @ApiOperation(value = "Delete wallet address")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "addressId" ,value = "提现地址的ID" ) ,
-            @ApiImplicitParam(name = "payPassword" ,value = "交易密码")
+            @ApiImplicitParam(name = "addressId", value = "Address id"),
+            @ApiImplicitParam(name = "payPassword", value = "Pay password")
     })
-    public R delete(@RequestParam(required = true) Long addressId ,@RequestParam(required = true) String payPassword){
-       boolean isOk =  userWalletService.deleteUserWallet(addressId,payPassword) ;
-       if(isOk){
-           return R.ok("删除成功") ;
+    public R delete(@RequestParam(required = true) Long addressId, @RequestParam(required = true) String payPassword) {
+       boolean isOk = userWalletService.deleteUserWallet(addressId, payPassword);
+       if(isOk) {
+           return R.ok("Delete wallet address success");
        }
-       return R.fail("删除失败") ;
+       return R.fail("Delete wallet address failed");
     }
 }

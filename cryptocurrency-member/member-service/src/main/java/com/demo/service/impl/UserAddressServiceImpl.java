@@ -14,42 +14,41 @@ import java.util.List;
 public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserAddress> implements UserAddressService{
 
     /**
-     * 通过用户的Id 分页查询用户的钱包地址
-     *
-     * @param page   分页参数
-     * @param userId 用户的Id
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Query user's wallet address by user id
+    * @Date 2022/6/5 15:35
+    **/
     @Override
     public Page<UserAddress> findByPage(Page<UserAddress> page, Long userId) {
-        return page(page ,new LambdaQueryWrapper<UserAddress>().eq(UserAddress::getUserId,userId));
+        return page(page ,new LambdaQueryWrapper<UserAddress>()
+                .eq(UserAddress::getUserId,userId)
+        );
     }
 
     /**
-     * 获取用户的提供地址
-     *
-     * @param userId
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Get user's wallet address by user id
+    * @Date 2022/6/5 15:35
+    **/
     @Override
     public List<UserAddress> getUserAddressByUserId(Long userId) {
 
-        return list(new LambdaQueryWrapper<UserAddress>().eq(UserAddress::getUserId,userId).orderByDesc(UserAddress::getCreated));
+        return list(new LambdaQueryWrapper<UserAddress>()
+                .eq(UserAddress::getUserId,userId)
+                .orderByDesc(UserAddress::getCreated)
+        );
     }
 
-
     /**
-     * 使用用户的Id 和币种的Id 查询用户的充币地址
-     *
-     * @param userId
-     * @param coinId
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Query user's some coin wallet address by coin id and user id
+    * @Date 2022/6/5 15:34
+    **/
     @Override
     public UserAddress getUserAddressByUserIdAndCoinId(String userId, Long coinId) {
         return getOne(new LambdaQueryWrapper<UserAddress>()
-                                        .eq(UserAddress::getUserId,userId)
-                                        .eq(UserAddress::getCoinId,coinId)
+                .eq(UserAddress::getUserId,userId)
+                .eq(UserAddress::getCoinId,coinId)
         );
     }
 }

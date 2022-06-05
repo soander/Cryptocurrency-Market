@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.demo.domain.UserBank;
 import com.demo.dto.UserBankDto;
-//import com.demo.feign.UserBankServiceFeign;
+import com.demo.feign.UserBankServiceFeign;
 import com.demo.mappers.UserBankDtoMapper;
 import com.demo.model.R;
 import com.demo.service.UserBankService;
@@ -21,8 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/userBanks")
 @Api(tags = "Members' bank management")
-//public class UserBankController implements UserBankServiceFeign {
-public class UserBankController {
+public class UserBankController implements UserBankServiceFeign {
 
     @Autowired
     private UserBankService userBankService;
@@ -95,10 +94,11 @@ public class UserBankController {
         return R.fail("Bind fail") ;
     }
 
-//    @Override
-//    public UserBankDto getUserBankInfo(Long userId) {
-//        UserBank currentUserBank = userBankService.getCurrentUserBank(userId);
-//        UserBankDto userBankDto = UserBankDtoMapper.INSTANCE.toConvertDto(currentUserBank);
-//        return userBankDto ;
-//    }
+    // Get user bank info by user id
+    @Override
+    public UserBankDto getUserBankInfo(Long userId) {
+        UserBank currentUserBank = userBankService.getCurrentUserBank(userId);
+        UserBankDto userBankDto = UserBankDtoMapper.INSTANCE.toConvertDto(currentUserBank);
+        return userBankDto;
+    }
 }
