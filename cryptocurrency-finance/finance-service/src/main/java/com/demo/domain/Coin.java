@@ -52,11 +52,8 @@ public class Coin {
     @NotBlank
     private String wallet;
 
-    /**
-     * 小数位数
-     */
     @TableField(value = "round")
-    @ApiModelProperty(value = "小数位数")
+    @ApiModelProperty(value = "decimal places")
     @NotNull
     private Byte round;
 
@@ -68,88 +65,54 @@ public class Coin {
     @NotNull
     private BigDecimal baseAmount;
 
-    /**
-     * 单笔最小提现数量
-     */
     @TableField(value = "min_amount")
-    @ApiModelProperty(value = "单笔最小提现数量")
+    @ApiModelProperty(value = "Minimum withdrawal amount in a single transaction")
     @NotNull
     private BigDecimal minAmount;
 
-    /**
-     * 单笔最大提现数量
-     */
     @TableField(value = "max_amount")
-    @ApiModelProperty(value = "单笔最大提现数量")
+    @ApiModelProperty(value = "Maximum withdrawal amount in a single transaction")
     @NotNull
     private BigDecimal maxAmount;
 
-    /**
-     * 当日最大提现数量
-     */
     @TableField(value = "day_max_amount")
-    @ApiModelProperty(value = "当日最大提现数量")
+    @ApiModelProperty(value = "Daily maximum withdrawal amount")
     @NotNull
     private BigDecimal dayMaxAmount;
 
-    /**
-     * status=1：启用
-     * 0：禁用
-     */
     @TableField(value = "status")
-    @ApiModelProperty(value = "status=1：启用,0：禁用")
+    @ApiModelProperty(value = "status: 1: enabled, 0: disabled")
     private Byte status;
 
-    /**
-     * 自动转出数量
-     */
     @TableField(value = "auto_out")
-    @ApiModelProperty(value = "自动转出数量")
+    @ApiModelProperty(value = "Automatic transfer out amount")
     private Double autoOut;
 
-    /**
-     * 手续费率
-     */
     @TableField(value = "rate")
-    @ApiModelProperty(value = "手续费率")
+    @ApiModelProperty(value = "Fee rate")
     @NotNull
     private Double rate;
 
-    /**
-     * 最低收取手续费个数
-     */
     @TableField(value = "min_fee_num")
-    @ApiModelProperty(value = "最低收取手续费个数")
+    @ApiModelProperty(value = "Minimum fee")
     @NotNull
     private BigDecimal minFeeNum;
 
-    /**
-     * 提现开关
-     */
     @TableField(value = "withdraw_flag")
-    @ApiModelProperty(value = "提现开关")
+    @ApiModelProperty(value = "Withdraw flag")
     @NotNull
     private Byte withdrawFlag;
 
-    /**
-     * 充值开关
-     */
     @TableField(value = "recharge_flag")
-    @ApiModelProperty(value = "充值开关")
+    @ApiModelProperty(value = "Recharge flag")
     @NotNull
     private Byte rechargeFlag;
 
-    /**
-     * 更新时间
-     */
     @TableField(value = "last_update_time",fill = FieldFill.INSERT_UPDATE)
-    @ApiModelProperty(value = "更新时间")
+    @ApiModelProperty(value = "Last update time")
     private Date lastUpdateTime;
 
-    /**
-     * 创建时间
-     */
     @TableField(value = "created",fill = FieldFill.INSERT)
-    @ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "Created time")
     private Date created;
 }

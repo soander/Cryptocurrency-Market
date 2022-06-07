@@ -39,16 +39,15 @@ public class AccountController implements AccountServiceFeign {
     }
 
     @GetMapping("/total")
-    @ApiOperation(value = "计算用户的总资产")
+    @ApiOperation(value = "User total account balance")
     public R<UserTotalAccountVo> total() {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         UserTotalAccountVo userTotalAccountVo = accountService.getUserTotalAccount(userId);
         return R.ok(userTotalAccountVo);
     }
 
-
     @GetMapping("/asset/{symbol}")
-    @ApiOperation(value = "交易货币的资产")
+    @ApiOperation(value = "Get symbol assert balance")
     public R<SymbolAssetVo> getSymbolAssert(@PathVariable("symbol") String symbol) {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         SymbolAssetVo symbolAssetVo = accountService.getSymbolAssert(symbol, userId);
@@ -56,45 +55,30 @@ public class AccountController implements AccountServiceFeign {
     }
 
     /**
-     * 锁定用户的余额
-     *
-     * @param userId  用户的id
-     * @param coinId  币种的id
-     * @param mum     锁定的数量
-     * @param type    业务类型
-     * @param orderId 订单编号
-     * @param fee
-     */
+    * @Author Yaozheng Wang
+    * @Description Lock user account balance
+    * @Date 2022/6/7 10:26
+    **/
     @Override
     public void lockUserAmount(Long userId, Long coinId, BigDecimal mum, String type, Long orderId, BigDecimal fee) {
         accountService.lockUserAmount(userId, coinId, mum, type, orderId, fee);
     }
 
     /**
-     * 划转买入的账户余额
-     *
-     * @param fromUserId
-     * @param toUserId
-     * @param coinId
-     * @param amount
-     * @param businessType
-     * @param orderId
-     */
+    * @Author Yaozheng Wang
+    * @Description Transfer user buy amount to account balance
+    * @Date 2022/6/7 10:26
+    **/
     @Override
     public void transferBuyAmount(Long fromUserId, Long toUserId, Long coinId, BigDecimal amount, String businessType, Long orderId) {
         accountService.transferBuyAmount(fromUserId, toUserId, coinId, amount, businessType, orderId);
     }
 
     /**
-     * 划转出售的成功的账户余额
-     *
-     * @param fromUserId
-     * @param toUserId
-     * @param coinId
-     * @param amount
-     * @param businessType
-     * @param orderId
-     */
+    * @Author Yaozheng Wang
+    * @Description Transfer user sell amount to account balance
+    * @Date 2022/6/7 10:27
+    **/
     @Override
     public void transferSellAmount(Long fromUserId, Long toUserId, Long coinId, BigDecimal amount, String businessType, Long orderId) {
         accountService.transferSellAmount(fromUserId, toUserId, coinId, amount, businessType, orderId);

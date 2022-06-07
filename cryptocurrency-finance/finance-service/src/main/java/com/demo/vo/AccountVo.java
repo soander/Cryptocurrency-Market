@@ -8,140 +8,68 @@ import java.math.RoundingMode;
 import java.util.Date;
 
 @Data
-@ApiModel(value = "账户资产的VO对象")
+@ApiModel(value = "Account Vo")
 public class AccountVo {
 
-    /**
-     * 账户ID
-     */
-    private Long id;
-    /**
-     * 用户id
-     */
-    private Long userId;
-    /**
-     * 币种id
-     */
-    private Long coinId;
-    /**
-     * 账号状态：1，正常；2，冻结；
-     */
-    private Integer accountStatus;
-    /**
-     * 币种可用金额
-     */
-    private BigDecimal balanceAmount;
-    /**
-     * 账面余额
-     */
-    private BigDecimal carryingAmount;
-    /**
-     * 币种冻结金额
-     */
-    private BigDecimal freezeAmount;
-    /**
-     * 累计充值金额
-     */
-    private BigDecimal rechargeAmount;
-    /**
-     * 累计提现金额
-     */
-    private BigDecimal withdrawalsAmount;
-    /**
-     * 净值
-     */
-    private BigDecimal netValue;
-    /**
-     * 占用保证金
-     */
-    private BigDecimal lockMargin;
-    /**
-     * 持仓盈亏/浮动盈亏
-     */
-    private BigDecimal floatProfit;
-    /**
-     * 总盈亏
-     */
-    private BigDecimal totalProfit;
-    /**
-     * 充值地址
-     */
-    private String recAddr;
-    /**
-     * 版本号
-     */
-    private Integer version;
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-    /**
-     * 持仓盈亏汇总
-     */
-    private BigDecimal opsitionGainAndLossSummary;
-    /**
-     * 币种类型
-     */
-    private String coinType;
-    /**
-     * 币种名称
-     */
-    private String coinName;
+    private Long id; // Account id
 
-    /**
-     * 币种img
-     */
-    private String coinImgUrl;
+    private Long userId; // User id
 
-    /**
-     * 剩余币的个数
-     */
-    private BigDecimal coinNum;
+    private Long coinId; // Coin id
 
-    /**
-     * 总的币个数
-     */
-    private BigDecimal totalNum;
+    private Integer accountStatus; // Account status: 1-normal, 2-frozen
 
-    /**
-     * 币种冻结金额
-     */
-    private BigDecimal coinFreezeNum;
+    private BigDecimal balanceAmount; // Account balance amount
 
-    /**
-     * 提币手续费率
-     */
-    private BigDecimal feeRate;
+    private BigDecimal carryingAmount; // Carrying amount
 
-    /**
-     * 提币固定手续费
-     */
-    private BigDecimal minFeeNum;
+    private BigDecimal freezeAmount; // Freeze amount
 
-    /**
-     * 提现开关
-     */
-    private int withdrawFlag;
+    private BigDecimal rechargeAmount; // Accumulated recharge amount
 
-    /**
-     * 充值开关
-     */
-    private int rechargeFlag;
+    private BigDecimal withdrawalsAmount; // Accumulated withdrawals amount
 
-    /**
-     * 单个币种CNY
-     */
-    private BigDecimal totalCny;
+    private BigDecimal netValue; // Net value
 
-    /**
-     * 当前对标基础结算货币价格
-     */
+    private BigDecimal lockMargin; // Locked margin
 
-    private BigDecimal currentPrice;
+    private BigDecimal floatProfit; // Float profit
+
+    private BigDecimal totalProfit; // Total profit
+
+    private String recAddr; // Recharge address
+
+    private Integer version; // Version
+
+    private Date updateTime; // Update time
+
+    private Date createTime; // Create time
+
+    private BigDecimal positionGainAndLossSummary; // Profit and loss summary of position
+
+    private String coinType; // Coin type
+
+    private String coinName; // Coin name
+
+    private String coinImgUrl; // Coin img url
+
+    private BigDecimal coinNum; // The number of remaining coins
+
+    private BigDecimal totalNum; // Total coin num
+
+    private BigDecimal coinFreezeNum; // Coin freeze amount
+
+    private BigDecimal feeRate; // Withdrawal fee rate
+
+    private BigDecimal minFeeNum; // Minimum withdrawal fee
+
+    private int withdrawFlag; // Withdrawal switch: 0-off, 1-on
+
+    private int rechargeFlag; // Recharge switch: 0-off, 1-on
+
+    private BigDecimal totalCny; // Total CNY
+
+    private BigDecimal currentPrice; // Current base coin price
 
     public void setBalanceAmount(BigDecimal balanceAmount) {
         this.balanceAmount = balanceAmount.setScale(8, RoundingMode.HALF_UP);

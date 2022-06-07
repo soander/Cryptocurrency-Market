@@ -12,34 +12,15 @@ public interface AccountVoMappers {
 
     AccountVoMappers INSTANCE = Mappers.getMapper(AccountVoMappers.class) ;
 
-    /**
-     * source 转化为AccountVo
-     * @param source
-     * @return
-     */
-    AccountVo toConvertVo(Account source) ;
+    // Account -> AccountVo
+    AccountVo toConvertVo(Account source);
 
+    // List<Account> -> List<AccountVo>
+    List<AccountVo> toConvertVo(List<Account> source);
 
-    /**
-     * source 转化为AccountVo
-     * @param source
-     * @return
-     */
-    List<AccountVo> toConvertVo(List<Account> source) ;
+    // AccountVo -> Account
+    Account toConvertEntity(AccountVo source);
 
-
-    /**
-     * source 转化为AccountVo
-     * @param source
-     * @return
-     */
-    Account toConvertEntity(AccountVo source) ;
-
-
-    /**
-     * source 转化为AccountVo
-     * @param source
-     * @return
-     */
-    List<Account> toConvertEntity(List<AccountVo> source) ;
+    // List<AccountVo> -> List<Account>
+    List<Account> toConvertEntity(List<AccountVo> source);
 }

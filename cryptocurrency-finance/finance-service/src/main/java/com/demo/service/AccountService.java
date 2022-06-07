@@ -18,15 +18,7 @@ public interface AccountService extends IService<Account> {
     // Get user total account balance
     UserTotalAccountVo getUserTotalAccount(Long userId);
 
-    /**
-     * 统计用户交易对的资产
-     * @param symbol
-     *  交易对的Symbol
-     * @param userId
-     *      用户的Id
-     * @return
-     */
-    // Get
+    // Get symbol assert balance
     SymbolAssetVo getSymbolAssert(String symbol, Long userId);
 
     // Transfer account amount

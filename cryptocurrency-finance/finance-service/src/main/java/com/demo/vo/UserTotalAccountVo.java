@@ -8,20 +8,18 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-@ApiModel(value = "账户资产")
+@ApiModel(value = "Total account balance")
 public class UserTotalAccountVo {
 
-    @ApiModelProperty(value = "用户的总金额CNY(人民币)")
-    private BigDecimal amount ;
+    @ApiModelProperty(value = "CNY balance")
+    private BigDecimal amount;
 
-    @ApiModelProperty(value = "用户的总金额(USDT平台币)")
-    private BigDecimal amountUs ;
+    @ApiModelProperty(value = "USDT balance")
+    private BigDecimal amountUs;
 
+    @ApiModelProperty(value = "USDT unit")
+    private String amountUsUnit;
 
-    @ApiModelProperty(value = "账户的金额单位(USDT平台币)")
-    private String amountUsUnit ;
-
-
-    @ApiModelProperty(value = "资产列表")
-    private List<AccountVo> assertList ;
+    @ApiModelProperty(value = "Asset list")
+    private List<AccountVo> assetList;
 }
