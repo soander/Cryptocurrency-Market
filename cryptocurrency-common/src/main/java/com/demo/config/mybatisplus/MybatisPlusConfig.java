@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan("com.demo.mapper")
 public class MybatisPlusConfig {
 
-
     // About page
     @Bean
     public PaginationInterceptor paginationInterceptor() {

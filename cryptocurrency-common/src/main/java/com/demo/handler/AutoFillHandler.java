@@ -11,6 +11,7 @@ import java.util.Date;
 @Component
 public class AutoFillHandler implements MetaObjectHandler {
 
+    // Fill when inserting
     @Override
     public void insertFill(MetaObject metaObject) {
         Long userId = getCurrentUserId();
@@ -19,6 +20,7 @@ public class AutoFillHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "lastUpdateTime", Date.class, new Date());
     }
 
+    // Fill when updating
     @Override
     public void updateFill(MetaObject metaObject) {
         Long userId = getCurrentUserId();
@@ -27,9 +29,10 @@ public class AutoFillHandler implements MetaObjectHandler {
         this.strictUpdateFill(metaObject, "lastUpdateTime", Date.class, new Date());
     }
 
+    // Get current user
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication!=null){
+        if(authentication!=null) {
             String s = authentication.getPrincipal().toString();
             if("anonymousUser".equals(s)) {
                 return null;
