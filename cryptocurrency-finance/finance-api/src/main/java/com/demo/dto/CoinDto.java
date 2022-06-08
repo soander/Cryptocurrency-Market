@@ -7,32 +7,30 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@ApiModel(value = "coin的RPC传输对象")
+@ApiModel(value = "coin's RPC object")
 public class CoinDto {
 
-    @ApiModelProperty(value = "币种的Id")
+    @ApiModelProperty(value = "Coin id")
     private Long id;
 
-    @ApiModelProperty(value = "币种的名称")
+    @ApiModelProperty(value = "Coin name")
     private String name;
 
-    @ApiModelProperty(value = "币种的标题")
+    @ApiModelProperty(value = "Coin title")
     private String title;
 
-    @ApiModelProperty(value = "币种的Logo")
+    @ApiModelProperty(value = "Coin img")
     private String img;
 
-
-    @ApiModelProperty(value = "最小提现单位")
+    @ApiModelProperty(value = "Base amount")
     private BigDecimal baseAmount;
 
-
-    @ApiModelProperty(value = "单笔最小提现数量")
+    @ApiModelProperty(value = "Minimum amount")
     private BigDecimal minAmount;
 
-    @ApiModelProperty(value = "单笔最大提现数量")
+    @ApiModelProperty(value = "Maximum amount")
     private BigDecimal maxAmount;
 
-    @ApiModelProperty(value = "当日最大提现数量")
+    @ApiModelProperty(value = "Maximum amount per day")
     private BigDecimal dayMaxAmount;
 }
