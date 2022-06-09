@@ -18,14 +18,7 @@ public interface EntrustOrderService extends IService<EntrustOrder>{
     // Query user's unfinished entrust order list
     Page<TradeEntrustOrderVo> getEntrustOrder(Page<EntrustOrder> page, String symbol, Long userId);
 
-    /**
-     * 创建一个新的委托大
-     * @param userId
-     * 用户的id
-     * @param orderParam
-     * 委托单的数据
-     * @return
-     */
+    // Create entrusted order
     Boolean createEntrustOrder(Long userId, OrderParam orderParam);
 
 

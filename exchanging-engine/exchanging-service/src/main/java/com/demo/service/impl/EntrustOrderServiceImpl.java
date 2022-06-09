@@ -91,7 +91,6 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
     **/
     @Override
     public Page<TradeEntrustOrderVo> getEntrustOrder(Page<EntrustOrder> page, String symbol, Long userId) {
-        // 该用户对该交易对的交易记录
         Page<EntrustOrder> entrustOrderPage = page(page, new LambdaQueryWrapper<EntrustOrder>()
                 .eq(EntrustOrder::getUserId, userId)
                 .eq(EntrustOrder::getSymbol, symbol)
@@ -170,55 +169,52 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
         return tradeEntrustOrderVo;
     }
 
-
     /**
-     * 创建一个新的委托大
-     *
-     * @param userId     用户的id
-     * @param orderParam 委托单的数据
-     * @return
-     */
+    * @Author Yaozheng Wang
+    * @Description Create a entrusted order
+    * @Date 2022/6/7 10:15
+    **/
     @Transactional
     @Override
     public Boolean createEntrustOrder(Long userId, OrderParam orderParam) {
-        // 1 层层校验
+
+        // Get market information
         @NotBlank String symbol = orderParam.getSymbol();
         Market markerBySymbol = marketService.getMarkerBySymbol(symbol);
         if (markerBySymbol == null) {
-            throw new IllegalArgumentException("您购买的交易对不存在");
+            throw new IllegalArgumentException("Symbol is null");
         }
-
         BigDecimal price = orderParam.getPrice().setScale(markerBySymbol.getPriceScale(), RoundingMode.HALF_UP);
         BigDecimal volume = orderParam.getVolume().setScale(markerBySymbol.getNumScale(), RoundingMode.HALF_UP);
-
-        // 计算成交额度
         BigDecimal mum = price.multiply(volume);
 
-        // 交易数量的交易
+        // Get the volume
         @NotNull BigDecimal numMax = markerBySymbol.getNumMax();
         @NotNull BigDecimal numMin = markerBySymbol.getNumMin();
         if (volume.compareTo(numMax) > 0 || volume.compareTo(numMin) < 0) {
-            throw new IllegalArgumentException("交易的数量不在范围内");
+            throw new IllegalArgumentException("The volume is out of range");
         }
 
-        // 校验交易额
+        // Get the trade amount
         BigDecimal tradeMin = markerBySymbol.getTradeMin();
         BigDecimal tradeMax = markerBySymbol.getTradeMax();
-
         if (mum.compareTo(tradeMin) < 0 || mum.compareTo(tradeMax) > 0) {
-            throw new IllegalArgumentException("交易的额度不在范围内");
+            throw new IllegalArgumentException("The trade amount is out of range");
         }
-        // 计算手续费
-        BigDecimal fee = BigDecimal.ZERO;
-        BigDecimal feeRate = BigDecimal.ZERO;
+
+        // Calculate the fee
+        BigDecimal fee;
+        BigDecimal feeRate;
         @NotNull Integer type = orderParam.getType();
-        if (type == 1) { // 买入 buy
+        if (type == 1) { // Buy
             feeRate = markerBySymbol.getFeeBuy();
             fee = mum.multiply(markerBySymbol.getFeeBuy());
-        } else { // 卖出 sell
+        } else { // Sell
             feeRate = markerBySymbol.getFeeSell();
             fee = mum.multiply(markerBySymbol.getFeeSell());
         }
+
+        // Create a new entrust order
         EntrustOrder entrustOrder = new EntrustOrder();
         entrustOrder.setUserId(userId);
         entrustOrder.setAmount(mum);
@@ -234,24 +230,21 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
         entrustOrder.setSymbol(markerBySymbol.getSymbol());
         entrustOrder.setFeeRate(feeRate);
         entrustOrder.setDeal(BigDecimal.ZERO);
-        entrustOrder.setFreeze(entrustOrder.getAmount().add(entrustOrder.getFee())); // 冻结余额
+        entrustOrder.setFreeze(entrustOrder.getAmount().add(entrustOrder.getFee()));
 
         boolean save = save(entrustOrder);
         if (save) {
-            // 用户余额的扣减
-            @NotNull Long coinId = null;
-            if (type == 1) { // 购买操作
+            @NotNull Long coinId;
+            if (type == 1) { // Buy
                 coinId = markerBySymbol.getBuyCoinId();
-
-            } else {
+            } else { // Sell
                 coinId = markerBySymbol.getSellCoinId();
             }
             if (entrustOrder.getType() == (byte) 1) {
                 accountServiceFeign.lockUserAmount(userId, coinId, entrustOrder.getFreeze(), "trade_create", entrustOrder.getId(), fee);
             }
-            // 发送到撮合系统里面
-            MessageBuilder<EntrustOrder> entrustOrderMessageBuilder = MessageBuilder.withPayload(entrustOrder).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
 
+            MessageBuilder<EntrustOrder> entrustOrderMessageBuilder = MessageBuilder.withPayload(entrustOrder).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
             source.outputMessage().send(entrustOrderMessageBuilder.build());
         }
         return save;
