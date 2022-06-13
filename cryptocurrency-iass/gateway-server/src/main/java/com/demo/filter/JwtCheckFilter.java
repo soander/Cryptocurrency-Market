@@ -28,7 +28,7 @@ import java.util.Set;
 @Component
 public class JwtCheckFilter implements GlobalFilter, Ordered {
 
-    @Value("${no.token.access.urls:/admin/login,/admin/validate/code}")
+    @Value("${no.require.urls:/admin/login,/admin/validate/code,/user/gt/register,/user/login,/user/users/register,/user/sms/sendTo,/user/users/setPassword}")
     private Set<String> noTokenAccessUrls;
 
     @Override

@@ -21,14 +21,10 @@ spring:
           uri: lb://member-service  # load balance
           predicates:
             - Path=/member/**
-          filters:
-            - StripPrefix=1
         - id: finance-service-router  # /finance/**--->finance-service
           uri: lb://finance-service # load balance
           predicates:
             - Path=/finance/**
-          filters:
-            - StripPrefix=1
         - id: chan-service-router    # /chan/**--->chan-service
           uri: lb://chan-service  # load balance
           predicates:
@@ -44,9 +40,7 @@ spring:
         - id: exchange-service-router  # /exchange/**--->exchange-service
           uri: lb://exchange-service  # load balance
           predicates:
-            - Path=/exchange/**
-          filters:
-            - StripPrefix=1
+            - Path=/match/**
         - id: test_router  # test
           uri: http://www.aliyun.com  # load balance
           predicates:
