@@ -55,7 +55,7 @@ public class EntrustOrderController {
             @ApiImplicitParam(name = "current",value = "Current page"),
             @ApiImplicitParam(name = "size",value = "Page size"),
     })
-    public R<Page<TradeEntrustOrderVo>> entrustOrders(@ApiIgnore Page<EntrustOrder> page , @PathVariable("symbol") String symbol) {
+    public R<Page<TradeEntrustOrderVo>> entrustOrders(@ApiIgnore Page<EntrustOrder> page, @PathVariable("symbol") String symbol) {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         Page<TradeEntrustOrderVo> pageData = entrustOrderService.getEntrustOrder(page, symbol, userId);
         return R.ok(pageData);
@@ -69,17 +69,17 @@ public class EntrustOrderController {
     public R createEntrustOrder(@RequestBody  OrderParam orderParam) {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         Boolean isOk = entrustOrderService.createEntrustOrder(userId,orderParam);
-        return isOk ? R.ok() :R.fail("Create fail");
+        return isOk ? R.ok() : R.fail("Create fail");
     }
 
 
-    @ApiOperation(value = "委托单的取消操作")
+    @ApiOperation(value = "Cancel entrust order")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id" ,value = "委托单的id")
+            @ApiImplicitParam(name = "id" ,value = "Entrust order id")
     })
     @DeleteMapping("/{id}")
-    public R deleteEntrustOrder(@PathVariable("id") Long orderId){
-        entrustOrderService.cancleEntrustOrder(orderId) ;
-        return R.ok("取消成功") ;
+    public R deleteEntrustOrder(@PathVariable("id") Long orderId) {
+        entrustOrderService.cancleEntrustOrder(orderId);
+        return R.ok("Cancel success");
     }
 }

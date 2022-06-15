@@ -251,10 +251,10 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
     }
 
     /**
-     * 更新我们的委托单的数据
-     *
-     * @param exchangeTrade
-     */
+    * @Author Yaozheng Wang
+    * @Description Update entrusted order about exchange trade
+    * @Date 2022/6/14 21:37
+    **/
     @Override
     @Transactional
     public void doMatch(ExchangeTrade exchangeTrade) {
@@ -265,31 +265,27 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
         Long marketId = sellOrder.getMarketId();
         Market market = marketService.getById(marketId);
 
-
-        // 1 新增成交记录
+        // 1 Add the turnover order
         addTurnOverOrderRecord(sellOrder, buyOrder, market, exchangeTrade);
-        // 2 更新委托单
+        // 2 Update entrust order
         updateEntrustOrder(sellOrder, buyOrder, exchangeTrade);
-        // 3 余额的返还
+        // 3 Roll back the account
         rollBackAccount(sellOrder, buyOrder, exchangeTrade, market);
     }
 
-
     /**
-     * 添加成交记录
-     *
-     * @param
-     */
+    * @Author Yaozheng Wang
+    * @Description Add the turnover order
+    * @Date 2022/6/14 21:40
+    **/
     private void addTurnOverOrderRecord(EntrustOrder sellOrder, EntrustOrder buyOrder, Market market, ExchangeTrade exchangeTrade) {
 
-
-        // 出售订单的成交记录
+        // Add the sell turnover order
         TurnoverOrder sellTurnoverOrder = new TurnoverOrder();
         sellTurnoverOrder.setSellOrderId(sellOrder.getId());
         sellTurnoverOrder.setBuyCoinId(buyOrder.getId());
         sellTurnoverOrder.setBuyVolume(exchangeTrade.getAmount());
         sellTurnoverOrder.setAmount(exchangeTrade.getSellTurnover());
-
         sellTurnoverOrder.setBuyCoinId(market.getBuyCoinId());
         sellTurnoverOrder.setSellCoinId(market.getSellCoinId());
         sellTurnoverOrder.setCreated(new Date());
@@ -300,7 +296,7 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
         sellTurnoverOrder.setTradeType(2);
         turnoverOrderService.save(sellTurnoverOrder);
 
-        // 买方数据的成交记录
+        // Add the buy turnover order
         TurnoverOrder buyTurnoverOrder = new TurnoverOrder();
         buyTurnoverOrder.setBuyOrderId(buyOrder.getId());
         buyTurnoverOrder.setSellOrderId(sellOrder.getId());
@@ -316,79 +312,64 @@ public class EntrustOrderServiceImpl extends ServiceImpl<EntrustOrderMapper, Ent
     }
 
     /**
-     * 更新委托单记录
-     *
-     * @param exchangeTrade
-     */
-
+    * @Author Yaozheng Wang
+    * @Description Update entrust order
+    * @Date 2022/6/14 21:40
+    **/
     private void updateEntrustOrder(EntrustOrder sellOrder, EntrustOrder buyOrder, ExchangeTrade exchangeTrade) {
 
-        /**
-         * 已经成交的数量
-         */
         sellOrder.setDeal(exchangeTrade.getAmount());
         buyOrder.setDeal(exchangeTrade.getAmount());
-        BigDecimal volume = sellOrder.getVolume(); // 总的数量
-        BigDecimal amount = exchangeTrade.getAmount(); // 本次成交的数量
+        BigDecimal volume = sellOrder.getVolume();
+        BigDecimal amount = exchangeTrade.getAmount();
 
-        if (amount.compareTo(volume) == 0) { // 交易完成
-            // 状态(已经完成)
+        if (amount.compareTo(volume) == 0) {
             sellOrder.setStatus((byte) 1);
         }
         BigDecimal buyOrderVolume = buyOrder.getVolume();
-        if (buyOrderVolume.compareTo(volume) == 0) { // 交易完成
-            // 状态(已经完成)
+        if (buyOrderVolume.compareTo(volume) == 0) {
             buyOrder.setStatus((byte) 1);
         }
-
-        // 更新委托单
         updateById(sellOrder);
         updateById(buyOrder);
     }
 
-
     /**
-     * 返回账户的余额
-     *
-     * @param exchangeTrade
-     */
+    * @Author Yaozheng Wang
+    * @Description Roll back the account
+    * @Date 2022/6/14 21:41
+    **/
     private void rollBackAccount(EntrustOrder sellOrder, EntrustOrder buyOrder, ExchangeTrade exchangeTrade, Market market) {
-        accountServiceFeign.transferBuyAmount(buyOrder.getUserId(),     // 买单用户ID
-                sellOrder.getUserId(),                          // 卖单用户ID
-                market.getBuyCoinId(),                           // 买单支付币种
-                exchangeTrade.getBuyTurnover(),                      // 买单成交金额
-                "币币交易",
+        accountServiceFeign.transferBuyAmount(buyOrder.getUserId(), sellOrder.getUserId(),
+                market.getBuyCoinId(), exchangeTrade.getBuyTurnover(), "币币交易",
                 Long.valueOf(exchangeTrade.getBuyOrderId()));
 
-        // 出售单需要
-        accountServiceFeign.transferSellAmount(sellOrder.getUserId(),    // 卖单用户ID
-                sellOrder.getUserId(),                           // 买单用户ID
-                market.getSellCoinId(),                          // 卖单支付币种
-                exchangeTrade.getSellTurnover(),                                      // 卖单成交数量
-                "币币交易",                        // 业务类型：币币交易撮合成交
-                Long.valueOf(exchangeTrade.getSellOrderId()));                         // 成交订单ID
+        accountServiceFeign.transferSellAmount(sellOrder.getUserId(), sellOrder.getUserId(),
+                market.getSellCoinId(), exchangeTrade.getSellTurnover(), "币币交易",
+                Long.valueOf(exchangeTrade.getSellOrderId()));
     }
 
+    /**
+    * @Author Yaozheng Wang
+    * @Description Cancel entrusted order
+    * @Date 2022/6/14 22:30
+    **/
     @Override
     public void cancleEntrustOrder(Long orderId) {
-        // 取消委托单
-        // 1 将该委托单从撮合引擎里面的委托单账本里面移除
         EntrustOrder entrustOrder = new EntrustOrder();
         entrustOrder.setStatus((byte) 2);
         entrustOrder.setId(orderId);
         Message<EntrustOrder> message = MessageBuilder.withPayload(entrustOrder).setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build();
         source.outputMessage().send(message);
-
     }
 
     /**
-     * 数据库里面委托单的取消
-     *
-     * @param orderId
-     */
+    * @Author Yaozheng Wang
+    * @Description Cancel entrusted order in database
+    * @Date 2022/6/14 22:41
+    **/
     @Override
     public void cancleEntrustOrderToDb(String orderId) {
-        // 2 数据库的操作
         if (StringUtils.hasText(orderId)) {
             Long orderIdVal = Long.valueOf(orderId);
             EntrustOrder entrustOrder = getById(orderId);

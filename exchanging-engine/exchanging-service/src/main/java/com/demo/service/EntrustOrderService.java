@@ -21,22 +21,12 @@ public interface EntrustOrderService extends IService<EntrustOrder>{
     // Create entrusted order
     Boolean createEntrustOrder(Long userId, OrderParam orderParam);
 
-
-    /**
-     * 更新我们的委托单的数据
-     * @param exchangeTrade
-     */
+    // Update entrusted order about exchange trade
     void doMatch(ExchangeTrade exchangeTrade);
 
-    /**
-     * 将数据投递到MQ 里面
-     * @param orderId
-     */
+    // Cancel entrusted order
     void cancleEntrustOrder(Long orderId);
 
-    /**
-     * 数据库里面委托单的取消
-     * @param orderId
-     */
+    // Cancel entrusted order to database
     void cancleEntrustOrderToDb(String orderId);
 }

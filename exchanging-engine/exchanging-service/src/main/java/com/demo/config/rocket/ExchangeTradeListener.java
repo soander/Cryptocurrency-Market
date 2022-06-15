@@ -1,6 +1,5 @@
 package com.demo.config.rocket;
 
-
 import com.demo.domain.ExchangeTrade;
 import com.demo.service.EntrustOrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,34 +11,29 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
-/***
- * 交易数据的监听
- */
 @Component
 @Slf4j
 public class ExchangeTradeListener {
 
     @Autowired
-    private EntrustOrderService entrustOrderService ;
+    private EntrustOrderService entrustOrderService;
 
     @Transactional
     @StreamListener("exchange_trade_in")
-    public void receiveExchangeTrade(List<ExchangeTrade> exchangeTrades){
-        if (CollectionUtils.isEmpty(exchangeTrades)){
+    public void receiveExchangeTrade(List<ExchangeTrade> exchangeTrades) {
+        if (CollectionUtils.isEmpty(exchangeTrades)) {
             return;
         }
         for (ExchangeTrade exchangeTrade : exchangeTrades) {
             if (exchangeTrade != null) {
-                //  交易完成后,去更新我们的数据库
                 entrustOrderService.doMatch(exchangeTrade);
             }
         }
     }
 
-
     @Transactional
     @StreamListener("cancel_order_in")
-    public void receiveCancelOrder(String orderId){
+    public void receiveCancelOrder(String orderId) {
         entrustOrderService.cancleEntrustOrderToDb(orderId);
     }
 }
