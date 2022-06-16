@@ -67,41 +67,40 @@ public class WebSocketMessageHandler implements IWsMsgHandler {
     @Override
     public Object onText(WsRequest wsRequest, String text, ChannelContext channelContext) throws Exception {
 
-        if(Objects.equals("ping",text)){
-            return "pong" ;
+        if(Objects.equals("ping", text)) {
+            return "pong";
         }
         log.info(text);
         JSONObject payload = JSON.parseObject(text);
 
-        String sub = payload.getString("sub"); // 要订阅的组
-        String req = payload.getString("req"); // 当前的request(预留字段)
-        String cancel = payload.getString("cancel");// 要取消订阅的组
-        String id = payload.getString("id"); // 订阅的id(预留字段)
+        String sub = payload.getString("sub");
+        String req = payload.getString("req");
+        String cancel = payload.getString("cancel");
+        String id = payload.getString("id");
         String authorization = payload.getString("authorization");
 
-        if(StringUtils.hasText(sub)){ // 订阅的组有内容
-            Tio.bindGroup(channelContext,sub);
+        if(StringUtils.hasText(sub)) {
+            Tio.bindGroup(channelContext, sub);
         }
-        if(StringUtils.hasText(cancel)){
-            Tio.unbindGroup(cancel,channelContext) ;
+        if(StringUtils.hasText(cancel)) {
+            Tio.unbindGroup(cancel, channelContext);
         }
-        if(StringUtils.hasText(authorization) && authorization.startsWith("bearer ")){
-            String token = authorization.replaceAll("bearer ","") ;
-            // 2 查询我们的菜单数据
+        if(StringUtils.hasText(authorization) && authorization.startsWith("bearer ")) {
+            String token = authorization.replaceAll("bearer ","");
             Jwt jwt = JwtHelper.decode(token);
             String jwtJsonStr = jwt.getClaims();
             JSONObject jwtJson = JSON.parseObject(jwtJsonStr);
-            String userId = jwtJson.getString("user_name") ;
-            // 有用户时绑定用户
+            String userId = jwtJson.getString("user_name");
             Tio.unbindUser(channelContext.getTioConfig(),userId);
         }
+
         ResponseEntity responseEntity = new ResponseEntity();
-        responseEntity.setCanceled(cancel) ;
-        responseEntity.setSubbed(sub) ;
-        responseEntity.setId(id) ;
-        responseEntity.setStatus("OK") ;
-        responseEntity.setCh(sub) ;
-        responseEntity.setEvent(req) ;
-        return responseEntity.build() ;
+        responseEntity.setCanceled(cancel);
+        responseEntity.setSubbed(sub);
+        responseEntity.setId(id);
+        responseEntity.setStatus("OK");
+        responseEntity.setCh(sub);
+        responseEntity.setEvent(req);
+        return responseEntity.build();
     }
 }
